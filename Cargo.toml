@@ -1,0 +1,10 @@
+[package]
+name = "proof-public-inputs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sha2 = "0.10.8"
+plonky2 = { git = "https://github.com/zkMIPS/plonky2.git", branch = "zkm_dev" }
+serde_json = "1.0.125"
+itertools = "0.11.0"
