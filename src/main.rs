@@ -1,13 +1,15 @@
+use itertools::Itertools;
+use sha2::{Digest, Sha256};
+
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::PrimeField64;
 use plonky2::plonk::config::PoseidonGoldilocksConfig;
 use plonky2::plonk::proof::ProofWithPublicInputs;
-use sha2::{Digest, Sha256};
-use itertools::Itertools;
+use plonky2x::backend::wrapper::plonky2_config::PoseidonBN128GoldilocksConfig;
 
 fn main() {
     let file_content =
-        std::fs::read_to_string("block_proof.json").unwrap();
+        std::fs::read_to_string("./data/block_proof.json").unwrap();
     let block_proof: ProofWithPublicInputs<GoldilocksField, PoseidonGoldilocksConfig, 2> = serde_json::from_str(&file_content).unwrap();
 
     let mut byte_size = vec![4usize; 16];
@@ -41,5 +43,11 @@ fn main() {
         r
     };
     let pi = sha256(vec![]).into_iter().chain(sha256(input_bytes).into_iter()).collect_vec();
-    println!("{:?}", pi);
+
+    let file_content =
+        std::fs::read_to_string("./data/proof_with_public_inputs.json").unwrap();
+    let wrapped_proof: ProofWithPublicInputs<GoldilocksField, PoseidonBN128GoldilocksConfig, 2> = serde_json::from_str(&file_content).unwrap();
+    let wrapped_pi = wrapped_proof.public_inputs.into_iter().take(64).map(|x| x.to_canonical_u64() as u8).collect_vec();
+
+    assert_eq!(pi, wrapped_pi);
 }
